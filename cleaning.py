@@ -22,8 +22,8 @@ def cleaning_data(data):
     stemmed = []
     for word in lines2:
         stemmed.append(s_stemmer.stem(word))
-    cleaned = s_stemmer.stem(stemmed).set(stopwords)
-    #cleaned = [word for word in stemmed if word not in stopwords.words('arabic')]
+    stop_list = set(stopwords.words('arabic'))
+    cleaned = [word for word in stemmed if word not in stop_list]
     
     return cleaned
     
