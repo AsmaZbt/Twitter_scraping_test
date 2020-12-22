@@ -11,21 +11,24 @@ import seaborn as sns
 import arabic_reshaper
 nest_asyncio.apply()
 
-c = twint.Config()
-#c.Username = "afaaa73"
-c.Search ="عقار OR استثمار OR رسول OR منتجات OR مقاطعة OR اللقاح OR كورونا"
-c.Lang = "ar"
-c.Store_json= True
-c.Output = "active_words_ar.json"
+def scraping_twitter():
+    print('This job is run every,{}'.format(time.ctime()))
+    c = twint.Config()
+    c.Search ="عقار OR استثمار OR رسول OR منتجات OR مقاطعة OR اللقاح OR كورونا"
+    c.Lang = "ar"
+    c.Store_json= True
+    c.Output = "active_words_ar.json"
+    output = twint.run.Search(c)
+    data = pd.read_json("active_words_ar.json",lines = True,encoding ='utf8')
+    return data
 
-output = twint.run.Search(c)
+# scheduling scraping 
+if __name__ = "__main__":
+    scheduler = BlockingScheduler()
+    intervalTrigger = IntervalTrigger(minutes = 10,start_date ="2020-12-22" ,end_date ="2021-01-02") # start_date and end_date
+    scheduler.add_job(scraping_twitter, intervalTrigger, id='')
+    scheduler.start()
 
-data = pd.read_json("active_words_ar.json",lines = True,encoding ='utf8')
-
-data.shape
-data.head()
-
-data.to_csv("arabic_tweets.csv",encoding="utf8")
 
 # cleaning data
 dt = data["tweet"]
