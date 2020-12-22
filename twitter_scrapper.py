@@ -1,20 +1,20 @@
+import time
 import pandas as pd
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import re
 import string
 import nest_asyncio
 import twint
-from nltk.corpus import stopwords
-import matplotlib.pyplot as plt; plt.rcdefaults()
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import arabic_reshaper
+import os
 nest_asyncio.apply()
 
+#scraping twitter
 def scraping_twitter():
-    print('This job is run every,{}'.format(time.ctime()))
+    print('This job id,{}'.format(time.ctime()))
     c = twint.Config()
     c.Search ="عقار OR استثمار OR رسول OR منتجات OR مقاطعة OR اللقاح OR كورونا"
+    #c.Format = "Tweet id: {id} | Tweet: {tweet}"   # what do we need as information? tweets and ?  
     c.Lang = "ar"
     c.Store_json= True
     c.Output = "active_words_ar.json"
@@ -22,87 +22,13 @@ def scraping_twitter():
     data = pd.read_json("active_words_ar.json",lines = True,encoding ='utf8')
     return data
 
-# scheduling scraping 
-if __name__ = "__main__":
+if __name__ == '__main__':
     scheduler = BlockingScheduler()
-    intervalTrigger = IntervalTrigger(minutes = 10,start_date ="2020-12-22" ,end_date ="2021-01-02") # start_date and end_date
-    scheduler.add_job(scraping_twitter, intervalTrigger, id='')
-    scheduler.start()
-
-
-# cleaning data
-dt = data["tweet"]
-#print(dt)
-
-#split to words
-all_sentences = []
-
-for word in dt:
-    all_sentences.append(word)
-
-lines = list()
-for line in all_sentences:    
-    words = line.split()
-    for w in words: 
-       lines.append(w)
-
-print(lines)
-
-#Remove punctuation,special caracter, non arabic letters 
-
-lines = [re.sub(r'[A-Za-z0-9]+', ' ', x) for x in lines]
-lines = [re.sub(r'[/,@:&.\(\)\[\]?؟!\#\_+]+', ' ', x) for x in lines]
-lines = ' '.join(lines).split()
-
-lines2 = []
-
-for word in lines:
-    if word != " " :
-        lines2.append(word)
-print(lines)
-
-#stemming step
-
-from nltk.stem.snowball import SnowballStemmer
-
-# The Snowball Stemmer requires that you pass a language parameter
-s_stemmer = SnowballStemmer(language='arabic')
-
-stemmed = []
-for word in lines2:
-    stemmed.append(s_stemmer.stem(word))
+    #intervalTrigger=IntervalTrigger(hours = 10,start_date ="2020-12-22" ,end_date ="2021-01-02") 
+    intervalTrigger=IntervalTrigger(hours = 1)
+    scheduler.add_job(scraping_twitter, intervalTrigger, id='This_job_id')
     
-stemmed
-
-# remove stop words
-
-
-stem = [word for word in stemmed if word not in stopwords.words('arabic')]
-
-dt = pd.DataFrame(stem)
-
-dt = dt[0].value_counts()
-
-# get word frequency
-from nltk.probability import FreqDist
-
-freq_words = FreqDist()
-
-for words in dt:
-    freq_words[words] += 1
-
-freq_words
-
-# get the top words on the tweets
-dt = dt[:50,]
-#data = arabic_reshaper.reshape(dt) # check again
-plt.figure(figsize=(10,5))
-sns.barplot(dt.values, dt.index, alpha=0.8)
-plt.title('Top Words')
-plt.ylabel('Word from Tweet', fontsize=12)
-plt.xlabel('Count of Words', fontsize=12)
-plt.show()
-
-
-
-
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
