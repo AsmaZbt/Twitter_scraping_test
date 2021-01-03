@@ -13,7 +13,7 @@ nest_asyncio.apply()
 
 RANDOM_SEED = 42
 
-# cout the embeddings with 1 or 2 
+# count the embeddings with function 1 or 2 
 TRANSFORMER_BATCH=128
 def count_embeddings_1 (df):
     idx_chunk=list(df.columns).index('cleaned_tweet')
@@ -46,8 +46,8 @@ if __name__ == '__main__':
 
     # sentence embeddings for training dataset
     start_time = default_timer()
-    train_embedd = count_embeddings_2(df_train)
-    print("Train embeddings: {}: in: {:5.2f}s".format(train_embedd.shape, default_timer() - start_time))
+    training_embeddings = count_embeddings_2(df_train)
+    print("Train embeddings: {}: in: {:5.2f}s".format(training_embeddings.shape, default_timer() - start_time))
 
     # sentence embeddings for testing dataset
     start_time = default_timer()
